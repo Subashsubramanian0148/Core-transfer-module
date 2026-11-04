@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Withdrawal Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Galileo app shell (rail + top bar), employee panel left, review content right.
+   One money card reads top to bottom as a calculation: gross − deductions = net. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --surface-2:#F6F8FB;
+  --text:#1B2430; --muted:#5D6B7C; --line:#E2E7EE; --line-strong:#CDD5E0;
+  --primary:#0B5FD3; --primary-weak:#EAF2FD;
+  --ok:#1B7A3E; --ok-weak:#E6F4EA; --danger:#B42318;
+  --font:"Open Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:8px; color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 var(--font)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+.app{display:grid;grid-template-columns:76px 1fr;min-height:100vh}
+.rail{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:6px;padding-block:14px}
+.rail .logo{width:40px;height:40px;border-radius:50%;background:var(--primary-weak);display:grid;place-items:center;color:var(--primary);font-weight:700;margin-bottom:10px}
+.nav{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:8px 2px;border-radius:var(--r);color:var(--muted);font-size:11px;text-align:center}
+.nav svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6}
+.nav.on{background:var(--primary-weak);color:var(--primary);font-weight:600}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding-inline:20px}
+.brand{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:700}
+.brand svg{width:30px;height:30px}
+.avatar-s{width:32px;height:32px;border-radius:50%;background:#7A1F2B;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+
+.page{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);flex:1;min-width:0}
+.emp{background:var(--surface-2);border-right:1px solid var(--line);padding:20px}
+.emp h2{margin:0 0 14px;font-size:15px;font-weight:600}
+.emp-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.emp-av{width:64px;height:64px;border-radius:50%;background:#C9D3F2;color:#2A3A73;display:grid;place-items:center;font-size:26px;font-weight:600}
+.emp-n{font-size:17px;font-weight:700}
+.emp-dl{width:100%;margin:10px 0 0;display:grid;gap:6px;border-top:1px solid var(--line);padding-top:12px;font-size:13px}
+.emp-dl div{display:flex;justify-content:space-between;gap:8px}
+.emp-dl dt{color:var(--muted)} .emp-dl dd{margin:0;font-weight:600}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;background:#EEF1F5;color:var(--muted)}
+.link{color:var(--primary);background:none;border:0;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+.content{padding:20px 24px 40px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.btn{height:38px;padding:0 18px;border-radius:6px;border:1px solid var(--primary);background:var(--surface);color:var(--primary);font-weight:600}
+.btn.pri{background:var(--primary);color:#fff}
+.btn.tert{border-color:transparent;background:none;color:var(--primary);text-decoration:underline;text-underline-offset:3px;padding:0 4px}
+.lbl{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:0}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card-h h3{margin:0;font-size:15px;font-weight:700}
+.foot{margin-top:6px;padding-top:12px;border-top:1px dashed var(--line-strong);font-size:12.5px;color:var(--muted)}
+
+.ph2{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.ph2 h1{margin:0;font-size:24px;font-weight:700}
+.ph2 p{margin:2px 0 0;color:var(--muted)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.bar .r{display:flex;gap:10px}
+.ctx{display:flex;flex-wrap:wrap;gap:6px 22px;color:var(--muted);font-size:13px}
+.ctx b{color:var(--text);font-weight:600}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.hero-net{background:var(--ok-weak);padding:22px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.hero-net .lbl{color:var(--ok);font-weight:600}
+.hero-net .amt{font-size:32px;font-weight:700;color:var(--ok);line-height:1.2}
+.hero-net .of{color:var(--muted);font-size:13px}
+.hero-calc{padding:10px 22px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .m{color:var(--muted);font-size:12.5px;margin-left:6px}
+.row.tot{font-weight:700;border-top:1px solid var(--line-strong);border-bottom:0;margin-top:2px;padding-top:10px}
+.warn-dot{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#FDF0E1;color:#A15C07;font-size:11px;font-weight:700;margin-left:6px}
+.pen{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:var(--r);background:#FFF7EC;color:#7A4A05;font-size:13px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.cb{padding:6px 18px 12px}
+.srct{width:100%;border-collapse:collapse}
+.srct th{font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:10px 0 6px;border-bottom:1px solid var(--line)}
+.srct td{padding:9px 0;border-bottom:1px solid var(--line)}
+.srct th:not(:first-child),.srct td:not(:first-child){text-align:right}
+.srct tfoot td{font-weight:700;border-bottom:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:900px){.hero,.two{grid-template-columns:1fr}}
+@media (max-width:820px){.page{grid-template-columns:1fr}.emp{border-right:0;border-bottom:1px solid var(--line)}}
+@media (max-width:560px){.app{grid-template-columns:1fr}.rail{display:none}.content{padding-inline:16px}.emp{padding-inline:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Primary">
+    <div class="logo" aria-hidden="true">C</div>
+    <div class="nav"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l3-4"/></svg>Dashboard</div>
+    <div class="nav"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>Plan Config</div>
+    <div class="nav"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Employees</div>
+    <div class="nav"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M9.5 12h6M9.5 16h6"/></svg>Payroll</div>
+    <div class="nav on"><svg viewBox="0 0 24 24"><path d="M4 8h15l-3-3M20 16H5l3 3"/></svg>Transaction</div>
+    <div class="nav"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="4" height="4" rx="1"/><rect x="10" y="7" width="4" height="4" rx="1"/><rect x="16" y="7" width="4" height="4" rx="1"/><rect x="4" y="13" width="4" height="4" rx="1"/><rect x="10" y="13" width="4" height="4" rx="1"/><rect x="16" y="13" width="4" height="4" rx="1"/></svg>Others</div>
+  </nav>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="brand"><svg viewBox="0 0 44 44" aria-hidden="true"><ellipse cx="17" cy="22" rx="12" ry="20" fill="#0B6FD3"/><path d="M30 4c6 5 9 11 9 18s-3 13-9 18" stroke="#0B9BE0" stroke-width="4" fill="none" stroke-linecap="round"/></svg>Galileo</div>
+      <div class="avatar-s" aria-label="Account">AR</div>
+    </header>
+
+    <div class="page">
+      <aside class="emp" aria-label="Employee details">
+        <h2>Employee details</h2>
+        <div class="emp-card">
+          <div class="emp-av" aria-hidden="true">KT</div>
+          <div class="emp-n">Kevin Thomas</div>
+          <span class="chip">Terminated</span>
+          <dl class="emp-dl">
+            <div><dt>SSN</dt><dd class="num">AAA-GG-XXXX</dd></div>
+            <div><dt>Company</dt><dd>Family Health of Five Ltd.</dd></div>
+          </dl>
+          <button class="link" type="button">More info</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="ph2">
+          <div><h1>Review withdrawal request</h1><p>Check the details below, then submit.</p></div>
+        </div>
+        <div class="bar">
+          <button class="btn tert" type="button">Save as draft</button>
+          <div class="r"><button class="btn" type="button">Back</button><button class="btn pri" type="button">Submit</button></div>
+        </div>
+
+        <div class="ctx">
+          <span>Plan <b>Vanguard 401(k) Plan</b></span>
+          <span>Type <b>In-Service · One time payment</b></span>
+          <span>Amount <b>Entire balance</b></span>
+        </div>
+
+        <section class="hero num" aria-label="Withdrawal amount">
+          <div class="hero-net">
+            <span class="lbl">Net to participant</span>
+            <span class="amt">$2,095.00</span>
+            <span class="of">from a $3,000.00 withdrawal</span>
+          </div>
+          <div class="hero-calc">
+            <div class="row"><span>Gross withdrawal</span><span>$3,000.00</span></div>
+            <div class="row"><span>Federal tax<span class="m">20%</span></span><span>−$600.00</span></div>
+            <div class="row"><span>State tax<span class="m">0%</span></span><span>−$0.00</span></div>
+            <div class="row"><span>Early withdrawal penalty<span class="m">10%</span></span><span>−$300.00</span></div>
+            <div class="row"><span>ETF fee</span><span>−$5.00</span></div>
+            <div class="row tot"><span>Net</span><span>$2,095.00</span></div>
+          </div>
+        </section>
+
+        <div class="pen" role="note"><span class="warn-dot" aria-hidden="true">!</span><span>A 10% early withdrawal penalty ($300.00) applies. The participant and admin have been notified.</span></div>
+
+        <div class="two">
+          <section class="card">
+            <div class="card-h"><h3>Payment</h3></div>
+            <div class="cb">
+              <div class="row"><span>Method</span><b>Direct deposit (ETF)</b></div>
+              <div class="row"><span>Bank</span><b>Chase Bank · Checking ••••0093</b></div>
+              <div class="row"><span>Routing</span><b class="num">021000021</b></div>
+              <div class="row"><span>Details from</span><b>Employee records</b></div>
+            </div>
+          </section>
+          <section class="card">
+            <div class="card-h"><h3>Sources</h3><span class="lbl">Pro-rata · Tax code 1 (Roth &amp; Non-Roth)</span></div>
+            <div class="cb">
+              <table class="srct num">
+                <thead><tr><th>Source</th><th>Gross</th><th>Net</th></tr></thead>
+                <tbody>
+                  <tr><td>KEIFER</td><td>$1,200.00</td><td>$838.00</td></tr>
+                  <tr><td>SEAS001</td><td>$1,000.00</td><td>$698.33</td></tr>
+                  <tr><td>INVST072</td><td>$800.00</td><td>$558.67</td></tr>
+                </tbody>
+                <tfoot><tr><td>Total</td><td>$3,000.00</td><td>$2,095.00</td></tr></tfoot>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+</body>
+</html>
